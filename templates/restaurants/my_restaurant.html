@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}My Restaurants - FoodExpress{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0"><i class="bi bi-shop me-2 text-danger"></i>My Restaurants</h3>
+        <a href="{% url 'create_restaurant' %}" class="btn btn-danger">
+            <i class="bi bi-plus-lg me-1"></i>Add Restaurant
+        </a>
+    </div>
+    {% if restaurants %}
+    <div class="row g-4">
+        {% for restaurant in restaurants %}
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="fw-bold mb-1">{{ restaurant.name }}</h5>
+                            <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-1"></i>{{ restaurant.city }}</p>
+                            <span class="badge {% if restaurant.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                {% if restaurant.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </div>
+                        <div class="badge bg-success fs-6">
+                            <i class="bi bi-star-fill me-1"></i>{{ restaurant.get_average_rating }}
+                        </div>
+                    </div>
+                    <div class="mt-3 d-flex gap-2 flex-wrap">
+                        <a href="{% url 'restaurant_detail' restaurant.pk %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-eye me-1"></i>View
+                        </a>
+                        <a href="{% url 'edit_restaurant' restaurant.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                        </a>
+                        <a href="{% url 'manage_menu' restaurant.pk %}" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-list-ul me-1"></i>Manage Menu
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1">🏪</div>
+        <h4 class="text-muted mt-3">No restaurants yet</h4>
+        <a href="{% url 'create_restaurant' %}" class="btn btn-danger mt-3">Add Your First Restaurant</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}My Cart - FoodExpress{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h3 class="fw-bold mb-4"><i class="bi bi-cart3 me-2 text-danger"></i>My Cart</h3>
+
+    {% if items %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0">
+                            <i class="bi bi-shop me-2 text-danger"></i>{{ cart.restaurant.name }}
+                        </h6>
+                        <a href="{% url 'clear_cart' %}" class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('Clear your cart?')">
+                            <i class="bi bi-trash me-1"></i>Clear Cart
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% for item in items %}
+                    <div class="d-flex align-items-center p-3 border-bottom">
+                        {% if item.menu_item.image %}
+                        <img src="{{ item.menu_item.image.url }}" class="rounded me-3" style="width:60px;height:60px;object-fit:cover;">
+                        {% else %}
+                        <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" style="width:60px;height:60px;">🍽️</div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold mb-0">{{ item.menu_item.name }}</h6>
+                            <span class="text-danger fw-semibold">₹{{ item.menu_item.price }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <form method="post" action="{% url 'update_cart' item.pk %}" class="d-flex align-items-center gap-1">
+                                {% csrf_token %}
+                                <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}"
+                                        class="btn btn-sm btn-outline-secondary px-2">−</button>
+                                <span class="fw-bold px-2">{{ item.quantity }}</span>
+                                <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}"
+                                        class="btn btn-sm btn-outline-secondary px-2">+</button>
+                            </form>
+                            <span class="fw-bold text-dark ms-2">₹{{ item.get_subtotal }}</span>
+                            <a href="{% url 'remove_from_cart' item.pk %}" class="btn btn-sm btn-outline-danger ms-1">
+                                <i class="bi bi-x"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Order Summary</h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span>₹{{ subtotal }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Delivery Charge</span>
+                        <span>{% if delivery_charge == 0 %}Free{% else %}₹{{ delivery_charge }}{% endif %}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold fs-5 mb-4">
+                        <span>Total</span>
+                        <span class="text-danger">₹{{ total }}</span>
+                    </div>
+                    <a href="{% url 'checkout' %}" class="btn btn-danger w-100 py-2 fw-semibold">
+                        <i class="bi bi-bag-check me-2"></i>Proceed to Checkout
+                    </a>
+                    <a href="{% url 'restaurant_list' %}" class="btn btn-outline-secondary w-100 mt-2">
+                        Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1">🛒</div>
+        <h4 class="text-muted mt-3">Your cart is empty</h4>
+        <p class="text-muted">Add items from a restaurant to get started.</p>
+        <a href="{% url 'restaurant_list' %}" class="btn btn-danger mt-2">Browse Restaurants</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

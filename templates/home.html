@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FoodExpress - Order Food Online{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-white py-5">
+    <div class="container py-4">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-3">
+                    Hungry? <br>We've Got You <span class="text-warning">Covered!</span>
+                </h1>
+                <p class="lead mb-4 opacity-90">Order from the best restaurants near you. Fast delivery, great food.</p>
+                <form action="{% url 'restaurant_list' %}" method="get" class="d-flex gap-2">
+                    <input type="text" name="q" class="form-control form-control-lg" placeholder="Search restaurants or cuisines...">
+                    <button type="submit" class="btn btn-warning btn-lg fw-semibold px-4">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="col-lg-6 text-center d-none d-lg-block">
+                <div class="hero-emoji">🍕🍔🍜🍣🥗</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Bar -->
+<section class="bg-warning py-3">
+    <div class="container">
+        <div class="row text-center g-3">
+            <div class="col-4">
+                <h4 class="fw-bold mb-0">500+</h4>
+                <small>Restaurants</small>
+            </div>
+            <div class="col-4">
+                <h4 class="fw-bold mb-0">30 min</h4>
+                <small>Avg Delivery</small>
+            </div>
+            <div class="col-4">
+                <h4 class="fw-bold mb-0">50K+</h4>
+                <small>Happy Customers</small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories -->
+{% if categories %}
+<section class="py-5">
+    <div class="container">
+        <h2 class="fw-bold mb-4">Browse by Category</h2>
+        <div class="row g-3">
+            {% for category in categories %}
+            <div class="col-6 col-md-3 col-lg-2">
+                <a href="{% url 'restaurant_list' %}?category={{ category.pk }}" class="text-decoration-none">
+                    <div class="card text-center border-0 shadow-sm category-card h-100 py-3">
+                        <div class="fs-1">{{ category.icon }}</div>
+                        <div class="fw-semibold mt-2 text-dark">{{ category.name }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Restaurants -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">Featured Restaurants</h2>
+            <a href="{% url 'restaurant_list' %}" class="btn btn-outline-danger">View All</a>
+        </div>
+        {% if featured_restaurants %}
+        <div class="row g-4">
+            {% for restaurant in featured_restaurants %}
+            <div class="col-md-6 col-lg-4">
+                <a href="{% url 'restaurant_detail' restaurant.pk %}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm restaurant-card h-100">
+                        {% if restaurant.image %}
+                        <img src="{{ restaurant.image.url }}" class="card-img-top restaurant-img" alt="{{ restaurant.name }}">
+                        {% else %}
+                        <div class="restaurant-img-placeholder d-flex align-items-center justify-content-center bg-light">
+                            <span class="display-4">🍽️</span>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title fw-bold text-dark mb-1">{{ restaurant.name }}</h5>
+                                <span class="badge bg-success">
+                                    <i class="bi bi-star-fill me-1"></i>{{ restaurant.get_average_rating }}
+                                </span>
+                            </div>
+                            <p class="text-muted small mb-2">{{ restaurant.city }}</p>
+                            <div class="d-flex gap-3 text-muted small">
+                                <span><i class="bi bi-clock me-1"></i>{{ restaurant.delivery_time }} min</span>
+                                <span><i class="bi bi-truck me-1"></i>
+                                    {% if restaurant.delivery_charge == 0 %}Free{% else %}₹{{ restaurant.delivery_charge }}{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="display-1">🍽️</div>
+            <h4 class="text-muted mt-3">No restaurants yet</h4>
+            {% if user.is_restaurant_owner %}
+            <a href="{% url 'create_restaurant' %}" class="btn btn-danger mt-3">Add Your Restaurant</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-5">How It Works</h2>
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="step-icon bg-danger text-white rounded-circle mx-auto mb-3">
+                    <i class="bi bi-search fs-3"></i>
+                </div>
+                <h5 class="fw-bold">1. Find a Restaurant</h5>
+                <p class="text-muted">Browse hundreds of restaurants and cuisines near you.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="step-icon bg-warning rounded-circle mx-auto mb-3">
+                    <i class="bi bi-cart3 fs-3"></i>
+                </div>
+                <h5 class="fw-bold">2. Choose Your Food</h5>
+                <p class="text-muted">Pick your favourite dishes and add them to your cart.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="step-icon bg-success text-white rounded-circle mx-auto mb-3">
+                    <i class="bi bi-truck fs-3"></i>
+                </div>
+                <h5 class="fw-bold">3. Fast Delivery</h5>
+                <p class="text-muted">Sit back and relax while we deliver to your door.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

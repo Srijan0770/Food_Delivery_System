@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Manage Menu - {{ restaurant.name }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0">Menu: {{ restaurant.name }}</h3>
+            <p class="text-muted mb-0">{{ items.count }} item{{ items.count|pluralize }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'my_restaurant' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+            <a href="{% url 'add_menu_item' restaurant.pk %}" class="btn btn-danger btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>Add Item
+            </a>
+        </div>
+    </div>
+
+    {% if items %}
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Item</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Tags</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                {% if item.image %}
+                                <img src="{{ item.image.url }}" class="rounded" style="width:45px;height:45px;object-fit:cover;">
+                                {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:45px;height:45px;">🍽️</div>
+                                {% endif %}
+                                <div>
+                                    <div class="fw-semibold">{{ item.name }}</div>
+                                    <small class="text-muted">{{ item.description|truncatechars:40 }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ item.category.name|default:"-" }}</td>
+                        <td class="fw-bold text-danger">₹{{ item.price }}</td>
+                        <td>
+                            {% if item.is_vegetarian %}<span class="badge bg-success me-1">🌿 Veg</span>{% endif %}
+                            {% if item.is_vegan %}<span class="badge bg-success me-1">🌱 Vegan</span>{% endif %}
+                            {% if item.is_spicy %}<span class="badge bg-danger me-1">🌶️ Spicy</span>{% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {% if item.is_available %}bg-success{% else %}bg-secondary{% endif %}">
+                                {% if item.is_available %}Available{% else %}Unavailable{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'edit_menu_item' item.pk %}" class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'delete_menu_item' item.pk %}" class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Delete {{ item.name }}?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1">📋</div>
+        <h4 class="text-muted mt-3">No menu items yet</h4>
+        <a href="{% url 'add_menu_item' restaurant.pk %}" class="btn btn-danger mt-3">Add First Item</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

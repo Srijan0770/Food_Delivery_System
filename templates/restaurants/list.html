@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Restaurants - FoodExpress{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <!-- Search & Filter -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search restaurants...">
+                </div>
+                <div class="col-md-3">
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.pk }}" {% if selected_category == cat.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.icon }} {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="city" value="{{ city }}" class="form-control" placeholder="City">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="bi bi-search me-1"></i>Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">{{ restaurants.count }} Restaurant{{ restaurants.count|pluralize }} Found</h5>
+        {% if query or selected_category or city %}
+        <a href="{% url 'restaurant_list' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-x-circle me-1"></i>Clear Filters
+        </a>
+        {% endif %}
+    </div>
+
+    {% if restaurants %}
+    <div class="row g-4">
+        {% for restaurant in restaurants %}
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'restaurant_detail' restaurant.pk %}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm restaurant-card h-100">
+                    {% if restaurant.image %}
+                    <img src="{{ restaurant.image.url }}" class="card-img-top restaurant-img" alt="{{ restaurant.name }}">
+                    {% else %}
+                    <div class="restaurant-img-placeholder d-flex align-items-center justify-content-center bg-light">
+                        <span class="display-4">🍽️</span>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h5 class="card-title fw-bold text-dark mb-0">{{ restaurant.name }}</h5>
+                            <span class="badge bg-success">
+                                <i class="bi bi-star-fill me-1"></i>{{ restaurant.get_average_rating }}
+                            </span>
+                        </div>
+                        {% if restaurant.category %}
+                        <span class="badge bg-light text-dark border mb-2">{{ restaurant.category.icon }} {{ restaurant.category.name }}</span>
+                        {% endif %}
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-geo-alt me-1"></i>{{ restaurant.city }}
+                        </p>
+                        <div class="d-flex gap-3 text-muted small">
+                            <span><i class="bi bi-clock me-1"></i>{{ restaurant.delivery_time }} min</span>
+                            <span><i class="bi bi-truck me-1"></i>
+                                {% if restaurant.delivery_charge == 0 %}Free Delivery{% else %}₹{{ restaurant.delivery_charge }}{% endif %}
+                            </span>
+                            {% if restaurant.minimum_order > 0 %}
+                            <span><i class="bi bi-bag me-1"></i>Min ₹{{ restaurant.minimum_order }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1">🔍</div>
+        <h4 class="text-muted mt-3">No restaurants found</h4>
+        <p class="text-muted">Try adjusting your search filters.</p>
+        <a href="{% url 'restaurant_list' %}" class="btn btn-danger">Browse All</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
